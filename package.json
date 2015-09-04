@@ -1,0 +1,29 @@
+{
+  "name": "dd-imports",
+  "version": "1.0.0",
+  "description": "Format data for DoubleDutch CMS import.",
+  "main": "app.js",
+  "dependencies": {
+    "async": "^1.2.1",
+    "google-auth-library": "^0.9.6",
+    "google-spreadsheet": "^0.3.1",
+    "path": "^0.11.14",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+  },
+  "scripts": {
+    "run": "node build.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davidrleonard/dd-imports.git"
+  },
+  "author": "David Leonard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/davidrleonard/dd-imports/issues"
+  },
+  "homepage": "https://github.com/davidrleonard/dd-imports"
+}
