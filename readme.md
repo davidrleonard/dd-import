@@ -48,7 +48,7 @@ Run the following in your shell/terminal:
     $ git clone https://github.com/davidrleonard/dd-imports.git
     $ cd dd-imports
     $ npm install
-    $ npm run
+    $ npm run-scripts run
 
 # To run on a server
 
