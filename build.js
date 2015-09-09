@@ -6,6 +6,7 @@ var path = require('path')
     , barstool = require('./lib/barstool')
     , sheetData
     , wstream
+    , speakers = []
     ;
 
 // =====
@@ -63,6 +64,7 @@ function getSheetData(cb){
 // PARSE AND WRITE SPECIFIC DATA
 // =====
 
+// Write the mainstage/schedule block sessions
 function writePrimarySessions(cb,sheetName){
   async.eachSeries(sheetData[sheetName], function(row,callback){
     var entry = [];
@@ -169,6 +171,77 @@ function writeBreakoutSessions(cb,sheetName){
   },function(err){ cb(err) });
 }
 
+function prepSpeakers(cb,sheetName){
+  async.eachSeries(sheetData[sheetName], function(row,callback){
+    // How many speakers do we support?
+    var numSpeakers = 6,
+        count = 0;
+
+    async.until(
+      function(){ return count == numSpeakers; },
+      function(callllback){
+        count++;
+        console.log('checking: '+count);
+        // If we don't have speaker, skip
+        if (row['speakername'+count].length === 0) {
+          return callllback(null);
+        }
+
+        // OK, we've got a speaker, so go ahead and get it ready...
+        var speaker = {};
+
+        // Grab the name and safe/key, this is easy(ish)
+        var name = row['speakername'+count].replace('Dr. ','').replace('Mayor ','')
+
+        speaker['First Name (required)'] = name.substr(0,name.indexOf(' '));
+        speaker['Last Name (required)'] = name.substr(name.indexOf(' ')+1);
+        speaker['Speaker ID'] = row['speakersafe'+count];
+
+        // Get the title/org
+        if ( row['speakertitleorg'+count].indexOf(',') > 0 ) {
+          // If there's a comma, i.e. if there's a 'Title here, Org here', split it up
+          speaker['Title'] = row['speakertitleorg'+count].substr(0,row['speakertitleorg'+count].indexOf(','));
+          speaker['Company'] = row['speakertitleorg'+count].substr(row['speakertitleorg'+count].indexOf(',')+1).replace(' ','');
+        } else {
+          // No comma, so shove everything in the title and make org empty
+          speaker['Title'] = row['speakertitleorg'+count];
+          speaker['Company'] = "";
+        }
+
+        // Figure out if we can grab a link to a photo, if we can, give it
+        if ( row['speakerphoto'+count] == 'STAFF' ) {
+          speaker['Image URL'] = 'http://codeforamerica.org/media/images/people/' + row['speakersafe'+count] + '.jpg';
+        } else if ( row['speakerphoto'+count] == 'SPEAKER' ) {
+          speaker['Image URL'] = 'http://codeforamerica.org/media/images/summit/2015/speakers/thumbnails/' + row['speakersafe'+count] + '.jpg';
+        } else {
+          speaker['Image URL'] = "";
+        }
+
+        // Give a link to the session ID
+        // speaker['Session IDs'] = row['sessionuniquekey'];
+        // ...temporarily, since there are no unique keys, make one...
+        // ...first 40 chars of session title, replace spaces with dashes, replace non-alpha chars with nothing (except those dashes), lowercase it
+        speaker['Session IDs'] = row['sessiontitle'].substr(0,40).replace(/\s/g,'-').replace(/[^\w-]/g,'').toLowerCase();
+
+        // ... we don't have these ...
+        speaker['Description'] = "";
+        speaker['Website'] = "";
+        speaker['Twitter Handle'] = "";
+        speaker['Facebook URL'] = "";
+        speaker['LinkedIn URL'] = "";
+        speaker['Attendee ID'] = "";
+
+        speakers.push(speaker);
+        callllback(null);
+
+      },
+      function(err){ callback(null); }
+    );
+  },function(err){
+    cb(err);
+  });
+}
+
 // =====
 // PERFORM ALL THE TASKS
 // =====
@@ -185,5 +258,15 @@ async.series([
   function(cb){ writeBreakoutSessions(cb,'breakout_descriptions')
               },
   function(cb){ closeStream(cb)
-              }
+              },
+  function(cb){ openStream(cb,'speakers-import.csv')
+              },
+  function(cb){ writeHeaders(cb,'"First Name (required)","Last Name (required)","Title","Company","Description","Image URL","Website","Twitter Handle","Facebook URL","LinkedIn URL","Session IDs","Attendee ID","Speaker ID"\n')
+              },
+  function(cb){ prepSpeakers(cb,'external_live_data')
+              },
+  function(cb){ prepSpeakers(cb,'breakout_descriptions')
+              },
+  function(cb){ closeStream(cb)
+              },
 ]);
