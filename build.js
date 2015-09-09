@@ -6,7 +6,7 @@ var path = require('path')
     , barstool = require('./lib/barstool')
     , sheetData
     , wstream
-    , speakers = []
+    , speakers = {}
     ;
 
 // =====
@@ -181,9 +181,20 @@ function prepSpeakers(cb,sheetName){
       function(){ return count == numSpeakers; },
       function(callllback){
         count++;
-        console.log('checking: '+count);
+        var speaker_key = row['speakersafe'+count];
+
         // If we don't have speaker, skip
         if (row['speakername'+count].length === 0) {
+          return callllback(null);
+        }
+
+        // Have we already seen this speaker?
+        // console.log('trying ' + speaker_key + ' ... type: ' + typeof(speakers[speaker_key]));
+        if (typeof(speakers[speaker_key]) === "object") {
+          console.log('HIT! ' + speaker_key)
+          // Then just add to it, don't make a new one
+          speakers[speaker_key]['Session IDs'] = speakers[speaker_key]['Session IDs'] + ',' + row['sessiontitle'].substr(0,40).replace(/\s/g,'-').replace(/[^\w-]/g,'').toLowerCase();
+          // We're done, move along
           return callllback(null);
         }
 
@@ -231,7 +242,8 @@ function prepSpeakers(cb,sheetName){
         speaker['LinkedIn URL'] = "";
         speaker['Attendee ID'] = "";
 
-        speakers.push(speaker);
+        // speakers.push(speaker);
+        speakers[row['speakersafe'+count]] = speaker;
         callllback(null);
 
       },
@@ -239,6 +251,46 @@ function prepSpeakers(cb,sheetName){
     );
   },function(err){
     cb(err);
+  });
+}
+
+function writeSpeakers(cb){
+  async.forEachOfSeries(speakers, function(value,key,callback){
+    var entry = [];
+
+    // "First Name (required)"
+    entry.push(value["First Name (required)"]);
+    // "Last Name (required)"
+    entry.push(value["Last Name (required)"]);
+    // "Title"
+    entry.push(value["Title"]);
+    // "Company"
+    entry.push(value["Company"]);
+    // "Description"
+    entry.push(value["Description"]);
+    // "Image URL"
+    entry.push(value["Image URL"]);
+    // "Website"
+    entry.push(value["Website"]);
+    // "Twitter Handle"
+    entry.push(value["Twitter Handle"]);
+    // "Facebook URL"
+    entry.push(value["Facebook URL"]);
+    // "LinkedIn URL"
+    entry.push(value["LinkedIn URL"]);
+    // "Session IDs"
+    entry.push(value["Session IDs"]);
+    // "Attendee ID"
+    entry.push(value["Attendee ID"]);
+    // "Speaker ID"
+    entry.push(value["Speaker ID"]);
+
+    // Write the prepared row
+    wstream.write( prepareRow(entry) );
+    callback(null);
+  },
+  function(err){
+    cb(null);
   });
 }
 
@@ -266,6 +318,8 @@ async.series([
   function(cb){ prepSpeakers(cb,'external_live_data')
               },
   function(cb){ prepSpeakers(cb,'breakout_descriptions')
+              },
+  function(cb){ writeSpeakers(cb)
               },
   function(cb){ closeStream(cb)
               },
