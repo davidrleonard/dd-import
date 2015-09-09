@@ -193,7 +193,7 @@ function prepSpeakers(cb,sheetName){
         if (typeof(speakers[speaker_key]) === "object") {
           console.log('HIT! ' + speaker_key)
           // Then just add to it, don't make a new one
-          speakers[speaker_key]['Session IDs'] = speakers[speaker_key]['Session IDs'] + ',' + row['sessiontitle'].substr(0,40).replace(/\s/g,'-').replace(/[^\w-]/g,'').toLowerCase();
+          speakers[speaker_key]['Session IDs'] = speakers[speaker_key]['Session IDs'] + ',' + row['sessionuniquekey'];
           // We're done, move along
           return callllback(null);
         }
@@ -229,10 +229,7 @@ function prepSpeakers(cb,sheetName){
         }
 
         // Give a link to the session ID
-        // speaker['Session IDs'] = row['sessionuniquekey'];
-        // ...temporarily, since there are no unique keys, make one...
-        // ...first 40 chars of session title, replace spaces with dashes, replace non-alpha chars with nothing (except those dashes), lowercase it
-        speaker['Session IDs'] = row['sessiontitle'].substr(0,40).replace(/\s/g,'-').replace(/[^\w-]/g,'').toLowerCase();
+        speaker['Session IDs'] = row['sessionuniquekey'];
 
         // ... we don't have these ...
         speaker['Description'] = "";
