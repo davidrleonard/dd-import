@@ -188,12 +188,8 @@ function prepSpeakers(cb,sheetName){
           return callllback(null);
         }
 
-        // Have we already seen this speaker?
-        // console.log('trying ' + speaker_key + ' ... type: ' + typeof(speakers[speaker_key]));
+        // Have we already seen this speaker? If so, skip it
         if (typeof(speakers[speaker_key]) === "object") {
-          // Then just add to it, don't make a new one
-          speakers[speaker_key]['Session IDs'] = speakers[speaker_key]['Session IDs'] + ',' + row['sessionuniquekey'];
-          // We're done, move along
           return callllback(null);
         }
 
@@ -227,8 +223,8 @@ function prepSpeakers(cb,sheetName){
           speaker['Image URL'] = "";
         }
 
-        // Give a link to the session ID
-        speaker['Session IDs'] = row['sessionuniquekey'];
+        // Don't do this. We don't want to write session IDs.
+        speaker['Session IDs'] = "";
 
         // ... we don't have these ...
         speaker['Description'] = "";
