@@ -191,7 +191,6 @@ function prepSpeakers(cb,sheetName){
         // Have we already seen this speaker?
         // console.log('trying ' + speaker_key + ' ... type: ' + typeof(speakers[speaker_key]));
         if (typeof(speakers[speaker_key]) === "object") {
-          console.log('HIT! ' + speaker_key)
           // Then just add to it, don't make a new one
           speakers[speaker_key]['Session IDs'] = speakers[speaker_key]['Session IDs'] + ',' + row['sessionuniquekey'];
           // We're done, move along
