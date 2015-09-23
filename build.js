@@ -100,6 +100,7 @@ function writePrimarySessions(cb,sheetName){
     if (row['speakersafe4'].length > 0) { speakers.push(row['speakersafe4']) }
     if (row['speakersafe5'].length > 0) { speakers.push(row['speakersafe5']) }
     if (row['speakersafe6'].length > 0) { speakers.push(row['speakersafe6']) }
+    if (row['speakersafe7'].length > 0) { speakers.push(row['speakersafe7']) }
     entry.push(speakers.join(','));
 
     // Link URLs
@@ -155,6 +156,7 @@ function writeBreakoutSessions(cb,sheetName){
       if (row['speakersafe4'].length > 0) { speakers.push(row['speakersafe4']) }
       if (row['speakersafe5'].length > 0) { speakers.push(row['speakersafe5']) }
       if (row['speakersafe6'].length > 0) { speakers.push(row['speakersafe6']) }
+      if (row['speakersafe7'].length > 0) { speakers.push(row['speakersafe7']) }
       entry.push(speakers.join(','));
 
       // Link URLs
@@ -174,7 +176,7 @@ function writeBreakoutSessions(cb,sheetName){
 function prepSpeakers(cb,sheetName){
   async.eachSeries(sheetData[sheetName], function(row,callback){
     // How many speakers do we support?
-    var numSpeakers = 6,
+    var numSpeakers = 7,
         count = 0;
 
     async.until(
