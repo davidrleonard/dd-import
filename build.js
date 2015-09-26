@@ -30,6 +30,10 @@ function prepareRow(row){
   .join(',')+'\n';
 }
 
+function stripTags(thing){
+  return thing.replace(/<[^>]*>/ig, "");
+}
+
 // Create our writestream to @fileName (STRING)
 function openStream(cb,fileName){
   // Clear the file
@@ -70,7 +74,7 @@ function writePrimarySessions(cb,sheetName){
     var entry = [];
 
     // Name (required)
-    entry.push(row['sessiontitle']);
+    entry.push(stripTags(row['sessiontitle']));
     // Description
     entry.push(row['sessiondescription']);
 
@@ -126,7 +130,7 @@ function writeBreakoutSessions(cb,sheetName){
       var entry = [];
 
       // Name (required)
-      entry.push(row['sessiontitle']);
+      entry.push(stripTags(row['sessiontitle']));
       // Description
       entry.push(row['sessiondescription']);
 
