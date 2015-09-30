@@ -71,52 +71,56 @@ function getSheetData(cb){
 // Write the mainstage/schedule block sessions
 function writePrimarySessions(cb,sheetName){
   async.eachSeries(sheetData[sheetName], function(row,callback){
-    var entry = [];
+    if (row['sessionappoutput'] == 'NO') { callback(null); }
+    else {
+      var entry = [];
 
-    // Name (required)
-    entry.push(stripTags(row['sessiontitle']));
-    // Description
-    entry.push(row['sessiondescription']);
+      // Name (required)
+      entry.push(stripTags(row['sessiontitle']));
+      // Description
+      entry.push(row['sessiondescription']);
 
-    // ... do some data crunching to format date ...
-    var time = row['timeblock'].split(' - ');
-    // Start time (required): "3/13/2014 1:11:00 PM"
-    entry.push(row['date'] + ' ' + time[0]);
-    // End time (required): "3/13/2014 1:11:00 PM"
-    entry.push(row['date'] + ' ' + time[1]);
+      // ... do some data crunching to format date ...
+      var time = row['timeblock'].split(' - ');
+      // Start time (required): "3/13/2014 1:11:00 PM"
+      entry.push(row['date'] + ' ' + time[0]);
+      // End time (required): "3/13/2014 1:11:00 PM"
+      entry.push(row['date'] + ' ' + time[1]);
 
-    // Location
-    // ... we aren't using these for now ...
-    entry.push('');
+      // Location
+      // ... we aren't using these for now ...
+      entry.push(row['roomlocation']);
 
-    // Session Tracks
-    entry.push(row['sessiontype']);
+      // Session Tracks
+      // Using a new field for these
+      entry.push(row['sessionapptrack']);
 
-    // Filters
-    // ... we aren't using these for now ...
-    entry.push('');
+      // Filters
+      // ... we aren't using these for now ...
+      entry.push('');
 
-    // Speaker IDs
-    var speakers = [];
-    if (row['speakersafe1'].length > 0) { speakers.push(row['speakersafe1']) }
-    if (row['speakersafe2'].length > 0) { speakers.push(row['speakersafe2']) }
-    if (row['speakersafe3'].length > 0) { speakers.push(row['speakersafe3']) }
-    if (row['speakersafe4'].length > 0) { speakers.push(row['speakersafe4']) }
-    if (row['speakersafe5'].length > 0) { speakers.push(row['speakersafe5']) }
-    if (row['speakersafe6'].length > 0) { speakers.push(row['speakersafe6']) }
-    if (row['speakersafe7'].length > 0) { speakers.push(row['speakersafe7']) }
-    entry.push(speakers.join(','));
+      // Speaker IDs
+      var speakers = [];
+      if (row['speakersafe1'].length > 0) { speakers.push(row['speakersafe1']) }
+      if (row['speakersafe2'].length > 0) { speakers.push(row['speakersafe2']) }
+      if (row['speakersafe3'].length > 0) { speakers.push(row['speakersafe3']) }
+      if (row['speakersafe4'].length > 0) { speakers.push(row['speakersafe4']) }
+      if (row['speakersafe5'].length > 0) { speakers.push(row['speakersafe5']) }
+      if (row['speakersafe6'].length > 0) { speakers.push(row['speakersafe6']) }
+      if (row['speakersafe7'].length > 0) { speakers.push(row['speakersafe7']) }
+      entry.push(speakers.join(','));
 
-    // Link URLs
-    // ... we aren't using these for now ...
-    entry.push('');
+      // Link URLs
+      // ... we aren't using these for now ...
+      entry.push('');
 
-    // Session ID (unique)
-    entry.push(row['sessionuniquekey']);
+      // Session ID (unique)
+      entry.push(row['sessionuniquekey']);
 
-    // Write the prepared row
-    wstream.write( prepareRow(entry) );
-    callback(null);
+      // Write the prepared row
+      wstream.write( prepareRow(entry) );
+      callback(null);
+    }
   },function(err){ cb(err) });
 }
 
